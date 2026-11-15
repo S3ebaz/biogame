@@ -50,7 +50,7 @@ footer { text-align: center; padding: 1.5rem; font-size: 0.85rem; color: #555; }
   <div id="screen-menu" class="active">
     <div class="card">
       <h2>Bienvenido</h2>
-      <p>Quiz basado en el temario de Biología 1. Niveles de fácil a difícil + niveles especiales. Progreso guardado en este navegador.</p>
+      <p>Quiz basado en el temario de Biología 1. Niveles de fácil a difícil + niveles especiales. Los temas van cambiando. Progreso guardado en este navegador.</p>
       <p id="player-info"></p>
       <label>Tu nombre: <input id="player-name" placeholder="Escribe tu nombre" style="padding:0.4rem; border-radius:6px; border:1px solid #ccc;"></label>
       <button onclick="saveName()" style="margin-top:0.5rem;">Guardar nombre</button>
@@ -150,35 +150,76 @@ const TEMARIO = [
 ];
 
 const ALL_QUESTIONS = [
+  // Unidad 1
   { q: "¿Qué es la Biología?", o: ["Estudio de la vida y los seres vivos", "Estudio de las rocas", "Estudio de las estrellas", "Estudio de la historia"], unit: 1, diff: 1 },
   { q: "Etimológicamente, Biología significa:", o: ["Estudio de la vida", "Estudio de los animales", "Estudio de las plantas", "Estudio de las células"], unit: 1, diff: 1 },
   { q: "El método científico comienza generalmente con:", o: ["Observación", "Conclusión", "Hipótesis final", "Publicación"], unit: 1, diff: 1 },
   { q: "Una rama de la Biología que estudia los animales es:", o: ["Zoología", "Botánica", "Microbiología", "Ecología"], unit: 1, diff: 1 },
+  { q: "¿Qué rama de la Biología estudia las plantas?", o: ["Botánica", "Zoología", "Microbiología", "Anatomía"], unit: 1, diff: 1 },
+  { q: "¿Qué rama estudia los microorganismos?", o: ["Microbiología", "Ecología", "Fisiología", "Taxonomía"], unit: 1, diff: 1 },
+  { q: "La Ecología estudia:", o: ["Las relaciones de los seres vivos con su ambiente", "La estructura de las células", "La herencia", "Los órganos del cuerpo"], unit: 1, diff: 2 },
   { q: "Los niveles de organización del más simple al más complejo son:", o: ["Átomo → Molécula → Célula → Tejido → Órgano → Sistema → Organismo", "Célula → Átomo → Organismo", "Órgano → Célula → Átomo", "Sistema → Tejido → Célula"], unit: 1, diff: 2 },
+  { q: "Una característica de los seres vivos es la irritabilidad, que es:", o: ["Capacidad de responder a estímulos", "Capacidad de reproducirse", "Mantener el equilibrio interno", "Cambiar con el tiempo"], unit: 1, diff: 2 },
+  { q: "La homeostasis es:", o: ["Mantener el equilibrio interno", "Crecer", "Evolucionar", "Moverse"], unit: 1, diff: 2 },
+  { q: "¿Qué característica permite a un ser vivo mantener el equilibrio interno?", o: ["Homeostasis", "Irritabilidad", "Reproducción", "Evolución"], unit: 1, diff: 3 },
+  { q: "El principio de unidad de los seres vivos se refiere a que:", o: ["Todos comparten características básicas", "Todos son idénticos", "Solo los animales", "No hay relación entre ellos"], unit: 1, diff: 3 },
+  { q: "La continuidad genética se relaciona con:", o: ["La herencia y el ADN", "La nutrición", "El movimiento", "La irritabilidad"], unit: 1, diff: 3 },
+  { q: "¿Qué ciencia se relaciona con la Biología en el estudio de la energía?", o: ["Física", "Historia", "Geografía", "Antropología"], unit: 1, diff: 2 },
+
+  // Unidad 2
   { q: "Los bioelementos más abundantes en los seres vivos son:", o: ["C, H, O, N", "Fe, Cu, Zn", "Na, Cl, K", "Ca, P, Mg"], unit: 2, diff: 1 },
   { q: "El agua es importante porque:", o: ["Es el solvente universal y participa en reacciones", "Es un gas", "No tiene función", "Es solo para beber"], unit: 2, diff: 1 },
   { q: "Los carbohidratos sirven principalmente como:", o: ["Fuente de energía", "Material genético", "Enzimas", "Membrana celular"], unit: 2, diff: 2 },
   { q: "Las proteínas están formadas por:", o: ["Aminoácidos", "Glucosa", "Ácidos grasos", "Nucleótidos"], unit: 2, diff: 2 },
   { q: "El plato del bien comer ayuda a:", o: ["Tener una alimentación saludable y balanceada", "Comer solo carbohidratos", "Evitar todas las frutas", "Comer solo de noche"], unit: 2, diff: 1 },
+  { q: "Los lípidos sirven principalmente para:", o: ["Almacenar energía y formar membranas", "Ser material genético", "Catalizar reacciones", "Transportar oxígeno"], unit: 2, diff: 2 },
+  { q: "Las enzimas son un tipo de:", o: ["Proteínas", "Carbohidratos", "Lípidos", "Vitaminas"], unit: 2, diff: 2 },
+  { q: "Los nucleótidos forman:", o: ["ADN y ARN", "Proteínas", "Carbohidratos", "Sales minerales"], unit: 2, diff: 3 },
+  { q: "El oxígeno (O2) es importante para:", o: ["La respiración celular", "La fotosíntesis únicamente", "Formar huesos", "No tiene función"], unit: 2, diff: 2 },
+  { q: "Una vitamina importante para la visión es:", o: ["Vitamina A", "Vitamina C", "Vitamina B12", "Vitamina D"], unit: 2, diff: 2 },
+  { q: "El plato del bien comer recomienda incluir:", o: ["Verduras, frutas, cereales y proteínas", "Solo carnes", "Solo dulces", "Solo agua"], unit: 2, diff: 1 },
+  { q: "Los ácidos nucleicos son:", o: ["ADN y ARN", "Proteínas", "Lípidos", "Carbohidratos"], unit: 2, diff: 3 },
+
+  // Unidad 3
   { q: "La Teoría Celular establece que:", o: ["Todos los seres vivos están formados por células", "Las células no existen", "Solo las plantas tienen células", "Las células son inanimadas"], unit: 3, diff: 1 },
   { q: "Las células procariotas:", o: ["No tienen núcleo definido", "Tienen núcleo", "Son solo animales", "No tienen membrana"], unit: 3, diff: 2 },
   { q: "El organelo que produce energía (ATP) es:", o: ["Mitocondria", "Cloroplasto", "Núcleo", "Ribosoma"], unit: 3, diff: 2 },
   { q: "La fotosíntesis ocurre principalmente en:", o: ["Cloroplastos", "Mitocondrias", "Núcleo", "Lisosomas"], unit: 3, diff: 2 },
   { q: "La mitosis produce:", o: ["Dos células hijas idénticas", "Cuatro células diferentes", "Una sola célula", "Gametos"], unit: 3, diff: 3 },
+  { q: "El núcleo contiene:", o: ["El material genético (ADN)", "Las mitocondrias", "Los cloroplastos", "Las vacuolas"], unit: 3, diff: 2 },
+  { q: "Los ribosomas se encargan de:", o: ["Síntesis de proteínas", "Fotosíntesis", "Respiración", "Digestión"], unit: 3, diff: 2 },
+  { q: "La membrana celular está formada principalmente por:", o: ["Lípidos y proteínas", "Solo carbohidratos", "Solo ADN", "Sales minerales"], unit: 3, diff: 2 },
+  { q: "La respiración celular produce:", o: ["ATP (energía)", "Glucosa", "Oxígeno", "Clorofila"], unit: 3, diff: 2 },
+  { q: "El ciclo celular incluye:", o: ["Interfase y mitosis", "Solo meiosis", "Solo fotosíntesis", "Solo digestión"], unit: 3, diff: 3 },
+  { q: "La gametogénesis produce:", o: ["Gametos (óvulos y espermatozoides)", "Células somáticas", "Bacterias", "Virus"], unit: 3, diff: 3 },
+  { q: "Las células eucariotas tienen:", o: ["Núcleo definido", "No tienen membrana", "Solo existen en bacterias", "No tienen organelos"], unit: 3, diff: 2 },
+  { q: "La meiosis produce:", o: ["Células haploides (gametos)", "Células diploides idénticas", "Solo bacterias", "Organelos"], unit: 3, diff: 3 },
+
+  // Unidad 4
   { q: "La genética estudia:", o: ["La herencia y los genes", "Solo las plantas", "Solo los virus", "La geografía"], unit: 4, diff: 1 },
   { q: "Gregor Mendel trabajó con:", o: ["Chícharos (guisantes)", "Ratones", "Moscas", "Bacterias"], unit: 4, diff: 2 },
   { q: "Una mutación es:", o: ["Un cambio en el material genético", "Algo que siempre es bueno", "Solo ocurre en plantas", "No existe"], unit: 4, diff: 2 },
   { q: "El síndrome de Down se debe a:", o: ["Trisomia del cromosoma 21", "Falta del cromosoma X", "Mutación en un gen específico", "Infección viral"], unit: 4, diff: 3 },
   { q: "Los alelos son:", o: ["Formas alternativas de un gen", "Tipos de células", "Organelos", "Vitaminas"], unit: 4, diff: 2 },
+  { q: "En la herencia mendeliana, un carácter dominante se expresa:", o: ["Aunque solo haya un alelo", "Solo si hay dos alelos recesivos", "Nunca", "Solo en plantas"], unit: 4, diff: 3 },
+  { q: "El síndrome de Klinefelter se debe a:", o: ["XXY", "XO", "Trisomia 21", "Trisomia 18"], unit: 4, diff: 3 },
+  { q: "El síndrome de maullido de gato se debe a:", o: ["Deleción en el cromosoma 5", "Trisomia 21", "Monosomía X", "Trisomia 13"], unit: 4, diff: 3 },
+  { q: "Una mutación puntual es:", o: ["Cambio en un solo nucleótido", "Pérdida de un cromosoma completo", "Duplicación de un órgano", "Cambio en el ambiente"], unit: 4, diff: 3 },
+  { q: "Los genes se encuentran en:", o: ["Los cromosomas", "Las mitocondrias solamente", "El citoplasma", "La membrana"], unit: 4, diff: 2 },
+  { q: "Un síndrome causado por monosomía del X es:", o: ["Síndrome de Turner", "Síndrome de Down", "Síndrome de Klinefelter", "Síndrome de Edwards"], unit: 4, diff: 3 },
+
+  // Unidad 5
   { q: "La evolución es el cambio de las especies a lo largo del tiempo mediante:", o: ["Selección natural y otros mecanismos", "Solo mutaciones al azar sin selección", "Creación espontánea constante", "No existe"], unit: 5, diff: 2 },
   { q: "Los virus:", o: ["Necesitan una célula hospedera para reproducirse", "Son células completas", "Siempre son beneficiosos", "No tienen material genético"], unit: 5, diff: 2 },
   { q: "La taxonomía clásica clasifica a los seres vivos en:", o: ["Reinos", "Solo especies", "Solo géneros", "Solo familias"], unit: 5, diff: 1 },
   { q: "El reino Monera incluye:", o: ["Bacterias (procariotas)", "Hongos", "Plantas", "Animales"], unit: 5, diff: 2 },
   { q: "La diversidad biológica es importante porque:", o: ["Mantiene el equilibrio de los ecosistemas", "No tiene importancia", "Solo sirve para decorar", "Solo existe en un lugar"], unit: 5, diff: 1 },
-  { q: "¿Qué característica permite a un ser vivo mantener el equilibrio interno?", o: ["Homeostasis", "Irritabilidad", "Reproducción", "Evolución"], unit: 1, diff: 3 },
-  { q: "Los ácidos nucleicos son:", o: ["ADN y ARN", "Proteínas", "Lípidos", "Carbohidratos"], unit: 2, diff: 3 },
-  { q: "La meiosis produce:", o: ["Células haploides (gametos)", "Células diploides idénticas", "Solo bacterias", "Organelos"], unit: 3, diff: 3 },
-  { q: "Un síndrome causado por monosomía del X es:", o: ["Síndrome de Turner", "Síndrome de Down", "Síndrome de Klinefelter", "Síndrome de Edwards"], unit: 4, diff: 3 },
+  { q: "El reino Protista incluye:", o: ["Organismos eucariotas unicelulares o multicelulares simples", "Solo bacterias", "Solo plantas", "Solo animales"], unit: 5, diff: 2 },
+  { q: "Las plantas pertenecen al reino:", o: ["Plantae", "Fungi", "Animalia", "Monera"], unit: 5, diff: 1 },
+  { q: "Los virus se clasifican como:", o: ["No celulares / acelulares", "Bacterias", "Hongos", "Protistas"], unit: 5, diff: 2 },
+  { q: "La taxonomía clásica usa categorías como:", o: ["Reino, filo, clase, orden, familia, género, especie", "Solo especie", "Solo reino", "Solo género"], unit: 5, diff: 2 },
+  { q: "Un ejemplo de diversidad es:", o: ["La variedad de especies en un ecosistema", "Que todos los seres vivos sean iguales", "Solo un tipo de bacteria", "La ausencia de vida"], unit: 5, diff: 1 },
+  { q: "La selección natural es un mecanismo de:", o: ["Evolución", "Fotosíntesis", "Mitosis", "Digestión"], unit: 5, diff: 2 },
   { q: "Los hongos pertenecen al reino:", o: ["Fungi", "Plantae", "Animalia", "Protista"], unit: 5, diff: 2 }
 ];
 
@@ -322,7 +363,6 @@ function finishLevel() {
   `;
   document.getElementById('quiz-progress').style.width = '100%';
 
-  // Generate QR
   if (typeof QRCode !== 'undefined') {
     const container = document.getElementById('qr-container');
     QRCode.toCanvas(container, scoreText, { width: 200, margin: 2, color: { dark: '#2e7d32', light: '#ffffff' } }, function (error) {
