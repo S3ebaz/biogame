@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BioGame - Temario Biología 1</title>
+<link rel="manifest" href="./manifest.webmanifest">
+<meta name="theme-color" content="#2e7d32">
+<style>
+:root { --green: #2e7d32; --light: #e8f5e9; --dark: #1b5e20; }
+* { box-sizing: border-box; }
+body { font-family: system-ui, -apple-system, sans-serif; margin: 0; background: var(--light); color: #1a1a1a; line-height: 1.5; }
+header { background: var(--green); color: white; padding: 1rem; text-align: center; }
+h1 { margin: 0; font-size: 1.4rem; }
+nav { display: flex; flex-wrap: wrap; gap: 0.5rem; justify-content: center; padding: 0.75rem; background: white; border-bottom: 1px solid #c8e6c9; }
+button, .btn { background: var(--green); color: white; border: none; padding: 0.6rem 1rem; border-radius: 8px; cursor: pointer; font-size: 0.95rem; }
+button:disabled { background: #9e9e9e; cursor: not-allowed; }
+button.secondary { background: #558b2f; }
+main { max-width: 720px; margin: 1rem auto; padding: 0 1rem; }
+.card { background: white; border-radius: 12px; padding: 1.25rem; margin-bottom: 1rem; box-shadow: 0 2px 8px rgba(0,0,0,.08); }
+.question { font-size: 1.15rem; font-weight: 600; margin-bottom: 1rem; }
+.options button { display: block; width: 100%; text-align: left; margin: 0.4rem 0; background: #f1f8e9; color: #1a1a1a; border: 1px solid #c5e1a5; }
+.options button:hover { background: #dcedc8; }
+.options button.correct { background: #c8e6c9; border-color: #2e7d32; }
+.options button.wrong { background: #ffcdd2; border-color: #c62828; }
+.progress { height: 8px; background: #e0e0e0; border-radius: 4px; margin: 0.5rem 0; overflow: hidden; }
+.progress > div { height: 100%; background: var(--green); transition: width .3s; }
+.level-list { display: grid; gap: 0.5rem; }
+.level { padding: 0.75rem; background: #f1f8e9; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; }
+.badge { background: #ffeb3b; color: #000; padding: 0.2rem 0.5rem; border-radius: 12px; font-size: 0.8rem; }
+#screen-menu, #screen-quiz, #screen-catalog { display: none; }
+#screen-menu.active, #screen-quiz.active, #screen-catalog.active { display: block; }
+footer { text-align: center; padding: 1.5rem; font-size: 0.85rem; color: #555; }
+</style>
+</head>
+<body>
+<header>
+  <h1>BioGame · Temario Biología 1</h1>
+  <p style="margin:0.25rem 0 0; opacity:.9;">Quiz educativo offline</p>
+</header>
+<nav>
+  <button onclick="showScreen('menu')">Inicio</button>
+  <button onclick="showScreen('catalog')">Temario / Catálogo</button>
+  <button onclick="resetProgress()" class="secondary">Reiniciar progreso</button>
+</nav>
+<main>
+  <div id="screen-menu" class="active">
+    <div class="card">
+      <h2>Bienvenido</h2>
+      <p>Quiz basado en el temario de Biología 1. Progreso guardado en este navegador.</p>
+      <p id="player-info"></p>
+      <label>Tu nombre: <input id="player-name" placeholder="Escribe tu nombre" style="padding:0.4rem; border-radius:6px; border:1px solid #ccc;"></label>
+      <button onclick="saveName()" style="margin-top:0.5rem;">Guardar nombre</button>
+    </div>
+    <div class="card">
+      <h2>Niveles / Unidades</h2>
+      <div id="levels" class="level-list"></div>
+    </div>
+    <div class="card">
+      <h2>Evaluación (según temario)</h2>
+      <p>Participación 10% · Cuaderno 50% · Proyecto o examen 40%</p>
+    </div>
+  </div>
+
+  <div id="screen-quiz">
+    <div class="card">
+      <div id="quiz-header"></div>
+      <div class="progress"><div id="quiz-progress" style="width:0%"></div></div>
+      <div id="quiz-content"></div>
+    </div>
+  </div>
+
+  <div id="screen-catalog">
+    <div class="card">
+      <h2>Temario completo</h2>
+      <div id="catalog"></div>
+    </div>
+  </div>
+</main>
+<footer>
+  Contenido educativo. No sustituye el material oficial de la clase.<br>
+  Basado en el temario de Biología 1.
+</footer>
+
+<script>
+const TEMARIO = [
+  {
+    id: 1, title: "Unidad 1. Introducción a la Biología",
+    topics: [
+      "1.1 Concepto de ciencia: Tipos de ciencias.",
+      "1.1.1 Método científico.",
+      "1.2 Concepto de Biología: Concepto etimológico y científico e Historia de la Biología",
+      "1.3 Relación de la Biología con otras ciencias y disciplinas: Química, Física, Matemáticas, Historia, Geografía, Antropología.",
+      "1.4 Ramas de la Biología: Zoología, Botánica, Microbiología, Anatomía, Fisiología, Ecología, Citología, Histología, Taxonomía.",
+      "1.5 Niveles de organización del ser vivo",
+      "1.6 Características del ser vivo: Reproducción, crecimiento, desarrollo, metabolismo, irritabilidad, homeostasis, nutrición, respiración, movimiento, evolución, adaptación.",
+      "1.7 Principios unificadores de los seres vivos: unidad, continuidad genética, diversidad, interacción."
+    ]
+  },
+  {
+    id: 2, title: "Unidad 2. Biología Molecular",
+    topics: [
+      "2.1 Bioelementos.",
+      "2.2 Compuestos inorgánicos: Agua, sales minerales, gases (O2, CO2 y N2).",
+      "2.3 Compuestos orgánicos: Carbohidratos, Lípidos, Proteínas y enzimas, Nucleótidos, Ácidos nucleicos, Vitaminas.",
+      "2.4 Nutrimentos, conocimiento del plato del bien comer y la alimentación saludable."
+    ]
+  },
+  {
+    id: 3, title: "Unidad 3. Biología Celular",
+    topics: [
+      "3.1 Desarrollo histórico y evolutivo de la Teoría Celular.",
+      "3.2 Células procariotas y eucariotas.",
+      "3.3 Morfofisiología de los componentes celulares: Membrana celular, Citoplasma, Organelos celulares, Núcleo.",
+      "3.4 Fisiología celular",
+      "3.4.1 Bioenergética",
+      "3.4.2 Fotosíntesis",
+      "3.4.3 Respiración celular",
+      "3.4.4 Síntesis de proteínas",
+      "3.4.5 Ciclo celular",
+      "3.4.6 Mitosis y meiosis",
+      "3.4.7 Gametogénesis"
+    ]
+  },
+  {
+    id: 4, title: "Unidad 4. Genética",
+    topics: [
+      "4.1 Conceptos básicos.",
+      "4.2 Herencia Mendeliana.",
+      "4.3 Alteraciones genéticas",
+      "4.4 Mutaciones.",
+      "4.5 Alteraciones cromosómicas.",
+      "4.6 Síndromes: Down, Turner, Klinefelter, Patau, Edwards, Maullido de gato, Super hembra, Super macho, Tourette, Williams, Prader Willi."
+    ]
+  },
+  {
+    id: 5, title: "Unidad 5. Biodiversidad",
+    topics: [
+      "5.1 Conceptos de evolución.",
+      "5.2 Diversidad.",
+      "5.3 Virus",
+      "5.4 Taxonomía clásica",
+      "5.5 Reinos: Monera, Protista, Fungi, Plantae y Animalia"
+    ]
+  }
+];
+
+const QUESTIONS = {
+  1: [
+    { q: "¿Qué es la Biología?", o: ["Estudio de la vida y los seres vivos", "Estudio de las rocas", "Estudio de las estrellas", "Estudio de la historia"], a: 0 },
+    { q: "Etimológicamente, Biología significa:", o: ["Estudio de la vida", "Estudio de los animales", "Estudio de las plantas", "Estudio de las células"], a: 0 },
+    { q: "El método científico comienza generalmente con:", o: ["Observación", "Conclusión", "Hipótesis final", "Publicación"], a: 0 },
+    { q: "Una rama de la Biología que estudia los animales es:", o: ["Zoología", "Botánica", "Microbiología", "Ecología"], a: 0 },
+    { q: "Los niveles de organización del más simple al más complejo son:", o: ["Átomo → Molécula → Célula → Tejido → Órgano → Sistema → Organismo", "Célula → Átomo → Organismo", "Órgano → Célula → Átomo", "Sistema → Tejido → Célula"], a: 0 }
+  ],
+  2: [
+    { q: "Los bioelementos más abundantes en los seres vivos son:", o: ["C, H, O, N", "Fe, Cu, Zn", "Na, Cl, K", "Ca, P, Mg"], a: 0 },
+    { q: "El agua es importante porque:", o: ["Es el solvente universal y participa en reacciones", "Es un gas", "No tiene función", "Es solo para beber"], a: 0 },
+    { q: "Los carbohidratos sirven principalmente como:", o: ["Fuente de energía", "Material genético", "Enzimas", "Membrana celular"], a: 0 },
+    { q: "Las proteínas están formadas por:", o: ["Aminoácidos", "Glucosa", "Ácidos grasos", "Nucleótidos"], a: 0 },
+    { q: "El plato del bien comer ayuda a:", o: ["Tener una alimentación saludable y balanceada", "Comer solo carbohidratos", "Evitar todas las frutas", "Comer solo de noche"], a: 0 }
+  ],
+  3: [
+    { q: "La Teoría Celular establece que:", o: ["Todos los seres vivos están formados por células", "Las células no existen", "Solo las plantas tienen células", "Las células son inanimadas"], a: 0 },
+    { q: "Las células procariotas:", o: ["No tienen núcleo definido", "Tienen núcleo", "Son solo animales", "No tienen membrana"], a: 0 },
+    { q: "El organelo que produce energía (ATP) es:", o: ["Mitocondria", "Cloroplasto", "Núcleo", "Ribosoma"], a: 0 },
+    { q: "La fotosíntesis ocurre principalmente en:", o: ["Cloroplastos", "Mitocondrias", "Núcleo", "Lisomas"], a: 0 },
+    { q: "La mitosis produce:", o: ["Dos células hijas idénticas", "Cuatro células diferentes", "Una sola célula", "Gametos"], a: 0 }
+  ],
+  4: [
+    { q: "La genética estudia:", o: ["La herencia y los genes", "Solo las plantas", "Solo los virus", "La geografía"], a: 0 },
+    { q: "Gregor Mendel trabajó con:", o: ["Chícharos (guisantes)", "Ratones", "Moscas", "Bacterias"], a: 0 },
+    { q: "Una mutación es:", o: ["Un cambio en el material genético", "Algo que siempre es bueno", "Solo ocurre en plantas", "No existe"], a: 0 },
+    { q: "El síndrome de Down se debe a:", o: ["Trisomia del cromosoma 21", "Falta del cromosoma X", "Mutación en un gen específico", "Infección viral"], a: 0 },
+    { q: "Los alelos son:", o: ["Formas alternativas de un gen", "Tipos de células", "Organelos", "Vitaminas"], a: 0 }
+  ],
+  5: [
+    { q: "La evolución es el cambio de las especies a lo largo del tiempo mediante:", o: ["Selección natural y otros mecanismos", "Solo mutaciones al azar sin selección", "Creación espontánea constante", "No existe"], a: 0 },
+    { q: "Los virus:", o: ["Necesitan una célula hospedera para reproducirse", "Son células completas", "Siempre son beneficiosos", "No tienen material genético"], a: 0 },
+    { q: "La taxonomía clásica clasifica a los seres vivos en:", o: ["Reinos", "Solo especies", "Solo géneros", "Solo familias"], a: 0 },
+    { q: "El reino Monera incluye:", o: ["Bacterias (procariotas)", "Hongos", "Plantas", "Animales"], a: 0 },
+    { q: "La diversidad biológica es importante porque:", o: ["Mantiene el equilibrio de los ecosistemas", "No tiene importancia", "Solo sirve para decorar", "Solo existe en un lugar"], a: 0 }
+  ]
+};
+
+let player = localStorage.getItem('biogame_player') || '';
+let progress = JSON.parse(localStorage.getItem('biogame_progress') || '{}');
+let currentUnit = null;
+let currentQ = 0;
+let score = 0;
+let quizQuestions = [];
+
+function showScreen(name) {
+  document.querySelectorAll('[id^="screen-"]').forEach(el => el.classList.remove('active'));
+  document.getElementById('screen-' + name).classList.add('active');
+  if (name === 'menu') renderLevels();
+  if (name === 'catalog') renderCatalog();
+}
+
+function saveName() {
+  player = document.getElementById('player-name').value.trim() || 'Estudiante';
+  localStorage.setItem('biogame_player', player);
+  updatePlayerInfo();
+}
+
+function updatePlayerInfo() {
+  document.getElementById('player-info').textContent = player ? `Jugador: ${player}` : '';
+  document.getElementById('player-name').value = player;
+}
+
+function renderLevels() {
+  const el = document.getElementById('levels');
+  el.innerHTML = '';
+  TEMARIO.forEach(u => {
+    const done = progress[u.id] || 0;
+    const div = document.createElement('div');
+    div.className = 'level';
+    div.innerHTML = `<div><strong>${u.title}</strong><br><small>${u.topics.length} temas</small></div>
+      <div>${done ? '<span class="badge">Completado</span>' : ''} <button onclick="startUnit(${u.id})">${done ? 'Repetir' : 'Iniciar'}</button></div>`;
+    el.appendChild(div);
+  });
+}
+
+function renderCatalog() {
+  const el = document.getElementById('catalog');
+  el.innerHTML = TEMARIO.map(u => `
+    <h3>${u.title}</h3>
+    <ul>${u.topics.map(t => `<li>${t}</li>`).join('')}</ul>
+  `).join('');
+}
+
+function startUnit(id) {
+  currentUnit = TEMARIO.find(u => u.id === id);
+  quizQuestions = [...(QUESTIONS[id] || [])].sort(() => Math.random() - 0.5);
+  currentQ = 0;
+  score = 0;
+  showScreen('quiz');
+  showQuestion();
+}
+
+function showQuestion() {
+  if (currentQ >= quizQuestions.length) {
+    finishUnit();
+    return;
+  }
+  const q = quizQuestions[currentQ];
+  document.getElementById('quiz-header').innerHTML = `<h2>${currentUnit.title}</h2><p>Pregunta ${currentQ + 1} de ${quizQuestions.length}</p>`;
+  document.getElementById('quiz-progress').style.width = ((currentQ) / quizQuestions.length * 100) + '%';
+  document.getElementById('quiz-content').innerHTML = `
+    <div class="question">${q.q}</div>
+    <div class="options">
+      ${q.o.map((opt, i) => `<button onclick="answer(${i})">${opt}</button>`).join('')}
+    </div>
+  `;
+}
+
+function answer(idx) {
+  const q = quizQuestions[currentQ];
+  const buttons = document.querySelectorAll('#quiz-content .options button');
+  buttons.forEach((btn, i) => {
+    btn.disabled = true;
+    if (i === q.a) btn.classList.add('correct');
+    if (i === idx && i !== q.a) btn.classList.add('wrong');
+  });
+  if (idx === q.a) score++;
+  setTimeout(() => {
+    currentQ++;
+    showQuestion();
+  }, 900);
+}
+
+function finishUnit() {
+  const pct = Math.round((score / quizQuestions.length) * 100);
+  progress[currentUnit.id] = Math.max(progress[currentUnit.id] || 0, pct);
+  localStorage.setItem('biogame_progress', JSON.stringify(progress));
+  document.getElementById('quiz-content').innerHTML = `
+    <h2>¡Unidad completada!</h2>
+    <p>Aciertos: ${score} / ${quizQuestions.length} (${pct}%)</p>
+    <button onclick="showScreen('menu')">Volver al menú</button>
+  `;
+  document.getElementById('quiz-progress').style.width = '100%';
+}
+
+function resetProgress() {
+  if (confirm('¿Seguro que quieres reiniciar todo el progreso?')) {
+    localStorage.removeItem('biogame_progress');
+    progress = {};
+    renderLevels();
+    alert('Progreso reiniciado.');
+  }
+}
+
+// Init
+updatePlayerInfo();
+renderLevels();
+
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('./sw.js').catch(() => {});
+}
+</script>
+</body>
+</html>
