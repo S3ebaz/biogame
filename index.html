@@ -28,6 +28,7 @@ main { max-width: 720px; margin: 1rem auto; padding: 0 1rem; }
 .level-list { display: grid; gap: 0.5rem; }
 .level { padding: 0.75rem; background: #f1f8e9; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; }
 .badge { background: #ffeb3b; color: #000; padding: 0.2rem 0.5rem; border-radius: 12px; font-size: 0.8rem; }
+.special { background: #fff3e0; }
 #screen-menu, #screen-quiz, #screen-catalog { display: none; }
 #screen-menu.active, #screen-quiz.active, #screen-catalog.active { display: block; }
 footer { text-align: center; padding: 1.5rem; font-size: 0.85rem; color: #555; }
@@ -36,7 +37,7 @@ footer { text-align: center; padding: 1.5rem; font-size: 0.85rem; color: #555; }
 <body>
 <header>
   <h1>BioGame · Temario Biología 1</h1>
-  <p style="margin:0.25rem 0 0; opacity:.9;">Quiz educativo offline</p>
+  <p style="margin:0.25rem 0 0; opacity:.9;">Quiz educativo offline · 20 preguntas por nivel</p>
 </header>
 <nav>
   <button onclick="showScreen('menu')">Inicio</button>
@@ -47,14 +48,18 @@ footer { text-align: center; padding: 1.5rem; font-size: 0.85rem; color: #555; }
   <div id="screen-menu" class="active">
     <div class="card">
       <h2>Bienvenido</h2>
-      <p>Quiz basado en el temario de Biología 1. Progreso guardado en este navegador.</p>
+      <p>Quiz basado en el temario de Biología 1. Niveles de fácil a difícil + niveles especiales. Progreso guardado en este navegador.</p>
       <p id="player-info"></p>
       <label>Tu nombre: <input id="player-name" placeholder="Escribe tu nombre" style="padding:0.4rem; border-radius:6px; border:1px solid #ccc;"></label>
       <button onclick="saveName()" style="margin-top:0.5rem;">Guardar nombre</button>
     </div>
     <div class="card">
-      <h2>Niveles / Unidades</h2>
+      <h2>Niveles (fácil → difícil)</h2>
       <div id="levels" class="level-list"></div>
+    </div>
+    <div class="card">
+      <h2>Niveles especiales</h2>
+      <div id="special-levels" class="level-list"></div>
     </div>
   </div>
 
@@ -141,50 +146,78 @@ const TEMARIO = [
   }
 ];
 
-const QUESTIONS = {
-  1: [
-    { q: "¿Qué es la Biología?", o: ["Estudio de la vida y los seres vivos", "Estudio de las rocas", "Estudio de las estrellas", "Estudio de la historia"], a: 0 },
-    { q: "Etimológicamente, Biología significa:", o: ["Estudio de la vida", "Estudio de los animales", "Estudio de las plantas", "Estudio de las células"], a: 0 },
-    { q: "El método científico comienza generalmente con:", o: ["Observación", "Conclusión", "Hipótesis final", "Publicación"], a: 0 },
-    { q: "Una rama de la Biología que estudia los animales es:", o: ["Zoología", "Botánica", "Microbiología", "Ecología"], a: 0 },
-    { q: "Los niveles de organización del más simple al más complejo son:", o: ["Átomo → Molécula → Célula → Tejido → Órgano → Sistema → Organismo", "Célula → Átomo → Organismo", "Órgano → Célula → Átomo", "Sistema → Tejido → Célula"], a: 0 }
-  ],
-  2: [
-    { q: "Los bioelementos más abundantes en los seres vivos son:", o: ["C, H, O, N", "Fe, Cu, Zn", "Na, Cl, K", "Ca, P, Mg"], a: 0 },
-    { q: "El agua es importante porque:", o: ["Es el solvente universal y participa en reacciones", "Es un gas", "No tiene función", "Es solo para beber"], a: 0 },
-    { q: "Los carbohidratos sirven principalmente como:", o: ["Fuente de energía", "Material genético", "Enzimas", "Membrana celular"], a: 0 },
-    { q: "Las proteínas están formadas por:", o: ["Aminoácidos", "Glucosa", "Ácidos grasos", "Nucleótidos"], a: 0 },
-    { q: "El plato del bien comer ayuda a:", o: ["Tener una alimentación saludable y balanceada", "Comer solo carbohidratos", "Evitar todas las frutas", "Comer solo de noche"], a: 0 }
-  ],
-  3: [
-    { q: "La Teoría Celular establece que:", o: ["Todos los seres vivos están formados por células", "Las células no existen", "Solo las plantas tienen células", "Las células son inanimadas"], a: 0 },
-    { q: "Las células procariotas:", o: ["No tienen núcleo definido", "Tienen núcleo", "Son solo animales", "No tienen membrana"], a: 0 },
-    { q: "El organelo que produce energía (ATP) es:", o: ["Mitocondria", "Cloroplasto", "Núcleo", "Ribosoma"], a: 0 },
-    { q: "La fotosíntesis ocurre principalmente en:", o: ["Cloroplastos", "Mitocondrias", "Núcleo", "Lisomas"], a: 0 },
-    { q: "La mitosis produce:", o: ["Dos células hijas idénticas", "Cuatro células diferentes", "Una sola célula", "Gametos"], a: 0 }
-  ],
-  4: [
-    { q: "La genética estudia:", o: ["La herencia y los genes", "Solo las plantas", "Solo los virus", "La geografía"], a: 0 },
-    { q: "Gregor Mendel trabajó con:", o: ["Chícharos (guisantes)", "Ratones", "Moscas", "Bacterias"], a: 0 },
-    { q: "Una mutación es:", o: ["Un cambio en el material genético", "Algo que siempre es bueno", "Solo ocurre en plantas", "No existe"], a: 0 },
-    { q: "El síndrome de Down se debe a:", o: ["Trisomia del cromosoma 21", "Falta del cromosoma X", "Mutación en un gen específico", "Infección viral"], a: 0 },
-    { q: "Los alelos son:", o: ["Formas alternativas de un gen", "Tipos de células", "Organelos", "Vitaminas"], a: 0 }
-  ],
-  5: [
-    { q: "La evolución es el cambio de las especies a lo largo del tiempo mediante:", o: ["Selección natural y otros mecanismos", "Solo mutaciones al azar sin selección", "Creación espontánea constante", "No existe"], a: 0 },
-    { q: "Los virus:", o: ["Necesitan una célula hospedera para reproducirse", "Son células completas", "Siempre son beneficiosos", "No tienen material genético"], a: 0 },
-    { q: "La taxonomía clásica clasifica a los seres vivos en:", o: ["Reinos", "Solo especies", "Solo géneros", "Solo familias"], a: 0 },
-    { q: "El reino Monera incluye:", o: ["Bacterias (procariotas)", "Hongos", "Plantas", "Animales"], a: 0 },
-    { q: "La diversidad biológica es importante porque:", o: ["Mantiene el equilibrio de los ecosistemas", "No tiene importancia", "Solo sirve para decorar", "Solo existe en un lugar"], a: 0 }
-  ]
-};
+const ALL_QUESTIONS = [
+  { q: "¿Qué es la Biología?", o: ["Estudio de la vida y los seres vivos", "Estudio de las rocas", "Estudio de las estrellas", "Estudio de la historia"], unit: 1, diff: 1 },
+  { q: "Etimológicamente, Biología significa:", o: ["Estudio de la vida", "Estudio de los animales", "Estudio de las plantas", "Estudio de las células"], unit: 1, diff: 1 },
+  { q: "El método científico comienza generalmente con:", o: ["Observación", "Conclusión", "Hipótesis final", "Publicación"], unit: 1, diff: 1 },
+  { q: "Una rama de la Biología que estudia los animales es:", o: ["Zoología", "Botánica", "Microbiología", "Ecología"], unit: 1, diff: 1 },
+  { q: "Los niveles de organización del más simple al más complejo son:", o: ["Átomo → Molécula → Célula → Tejido → Órgano → Sistema → Organismo", "Célula → Átomo → Organismo", "Órgano → Célula → Átomo", "Sistema → Tejido → Célula"], unit: 1, diff: 2 },
+  { q: "Los bioelementos más abundantes en los seres vivos son:", o: ["C, H, O, N", "Fe, Cu, Zn", "Na, Cl, K", "Ca, P, Mg"], unit: 2, diff: 1 },
+  { q: "El agua es importante porque:", o: ["Es el solvente universal y participa en reacciones", "Es un gas", "No tiene función", "Es solo para beber"], unit: 2, diff: 1 },
+  { q: "Los carbohidratos sirven principalmente como:", o: ["Fuente de energía", "Material genético", "Enzimas", "Membrana celular"], unit: 2, diff: 2 },
+  { q: "Las proteínas están formadas por:", o: ["Aminoácidos", "Glucosa", "Ácidos grasos", "Nucleótidos"], unit: 2, diff: 2 },
+  { q: "El plato del bien comer ayuda a:", o: ["Tener una alimentación saludable y balanceada", "Comer solo carbohidratos", "Evitar todas las frutas", "Comer solo de noche"], unit: 2, diff: 1 },
+  { q: "La Teoría Celular establece que:", o: ["Todos los seres vivos están formados por células", "Las células no existen", "Solo las plantas tienen células", "Las células son inanimadas"], unit: 3, diff: 1 },
+  { q: "Las células procariotas:", o: ["No tienen núcleo definido", "Tienen núcleo", "Son solo animales", "No tienen membrana"], unit: 3, diff: 2 },
+  { q: "El organelo que produce energía (ATP) es:", o: ["Mitocondria", "Cloroplasto", "Núcleo", "Ribosoma"], unit: 3, diff: 2 },
+  { q: "La fotosíntesis ocurre principalmente en:", o: ["Cloroplastos", "Mitocondrias", "Núcleo", "Lisosomas"], unit: 3, diff: 2 },
+  { q: "La mitosis produce:", o: ["Dos células hijas idénticas", "Cuatro células diferentes", "Una sola célula", "Gametos"], unit: 3, diff: 3 },
+  { q: "La genética estudia:", o: ["La herencia y los genes", "Solo las plantas", "Solo los virus", "La geografía"], unit: 4, diff: 1 },
+  { q: "Gregor Mendel trabajó con:", o: ["Chícharos (guisantes)", "Ratones", "Moscas", "Bacterias"], unit: 4, diff: 2 },
+  { q: "Una mutación es:", o: ["Un cambio en el material genético", "Algo que siempre es bueno", "Solo ocurre en plantas", "No existe"], unit: 4, diff: 2 },
+  { q: "El síndrome de Down se debe a:", o: ["Trisomia del cromosoma 21", "Falta del cromosoma X", "Mutación en un gen específico", "Infección viral"], unit: 4, diff: 3 },
+  { q: "Los alelos son:", o: ["Formas alternativas de un gen", "Tipos de células", "Organelos", "Vitaminas"], unit: 4, diff: 2 },
+  { q: "La evolución es el cambio de las especies a lo largo del tiempo mediante:", o: ["Selección natural y otros mecanismos", "Solo mutaciones al azar sin selección", "Creación espontánea constante", "No existe"], unit: 5, diff: 2 },
+  { q: "Los virus:", o: ["Necesitan una célula hospedera para reproducirse", "Son células completas", "Siempre son beneficiosos", "No tienen material genético"], unit: 5, diff: 2 },
+  { q: "La taxonomía clásica clasifica a los seres vivos en:", o: ["Reinos", "Solo especies", "Solo géneros", "Solo familias"], unit: 5, diff: 1 },
+  { q: "El reino Monera incluye:", o: ["Bacterias (procariotas)", "Hongos", "Plantas", "Animales"], unit: 5, diff: 2 },
+  { q: "La diversidad biológica es importante porque:", o: ["Mantiene el equilibrio de los ecosistemas", "No tiene importancia", "Solo sirve para decorar", "Solo existe en un lugar"], unit: 5, diff: 1 },
+  { q: "¿Qué característica permite a un ser vivo mantener el equilibrio interno?", o: ["Homeostasis", "Irritabilidad", "Reproducción", "Evolución"], unit: 1, diff: 3 },
+  { q: "Los ácidos nucleicos son:", o: ["ADN y ARN", "Proteínas", "Lípidos", "Carbohidratos"], unit: 2, diff: 3 },
+  { q: "La meiosis produce:", o: ["Células haploides (gametos)", "Células diploides idénticas", "Solo bacterias", "Organelos"], unit: 3, diff: 3 },
+  { q: "Un síndrome causado por monosomía del X es:", o: ["Síndrome de Turner", "Síndrome de Down", "Síndrome de Klinefelter", "Síndrome de Edwards"], unit: 4, diff: 3 },
+  { q: "Los hongos pertenecen al reino:", o: ["Fungi", "Plantae", "Animalia", "Protista"], unit: 5, diff: 2 }
+];
+
+const LEVELS = [
+  { id: 1, title: "Nivel 1 · Muy fácil", minDiff: 1, maxDiff: 1, special: false },
+  { id: 2, title: "Nivel 2 · Fácil", minDiff: 1, maxDiff: 1, special: false },
+  { id: 3, title: "Nivel 3 · Fácil", minDiff: 1, maxDiff: 2, special: false },
+  { id: 4, title: "Nivel 4 · Medio", minDiff: 1, maxDiff: 2, special: false },
+  { id: 5, title: "Nivel 5 · Medio", minDiff: 2, maxDiff: 2, special: false },
+  { id: 6, title: "Nivel 6 · Medio", minDiff: 2, maxDiff: 2, special: false },
+  { id: 7, title: "Nivel 7 · Difícil", minDiff: 2, maxDiff: 3, special: false },
+  { id: 8, title: "Nivel 8 · Difícil", minDiff: 2, maxDiff: 3, special: false },
+  { id: 9, title: "Nivel 9 · Muy difícil", minDiff: 3, maxDiff: 3, special: false },
+  { id: 10, title: "Nivel 10 · Experto", minDiff: 2, maxDiff: 3, special: false },
+  { id: 11, title: "Especial 1 · Repaso general", minDiff: 1, maxDiff: 3, special: true },
+  { id: 12, title: "Especial 2 · Células y organelos", minDiff: 2, maxDiff: 3, special: true },
+  { id: 13, title: "Especial 3 · Genética y síndromes", minDiff: 2, maxDiff: 3, special: true },
+  { id: 14, title: "Especial 4 · Biodiversidad", minDiff: 1, maxDiff: 3, special: true },
+  { id: 15, title: "Especial 5 · Desafío final", minDiff: 2, maxDiff: 3, special: true }
+];
 
 let player = localStorage.getItem('biogame_player') || '';
 let progress = JSON.parse(localStorage.getItem('biogame_progress') || '{}');
-let currentUnit = null;
+let currentLevel = null;
 let currentQ = 0;
 let score = 0;
 let quizQuestions = [];
+
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function prepareQuestion(raw) {
+  const options = shuffle(raw.o);
+  const correctIndex = options.indexOf(raw.o[0]);
+  return { q: raw.q, o: options, a: correctIndex };
+}
 
 function showScreen(name) {
   document.querySelectorAll('[id^="screen-"]').forEach(el => el.classList.remove('active'));
@@ -205,15 +238,18 @@ function updatePlayerInfo() {
 }
 
 function renderLevels() {
-  const el = document.getElementById('levels');
-  el.innerHTML = '';
-  TEMARIO.forEach(u => {
-    const done = progress[u.id] || 0;
+  const normal = document.getElementById('levels');
+  const special = document.getElementById('special-levels');
+  normal.innerHTML = '';
+  special.innerHTML = '';
+  LEVELS.forEach(lvl => {
+    const done = progress[lvl.id] || 0;
+    const unlocked = lvl.id <= 10 || (progress[10] && progress[10] > 0);
     const div = document.createElement('div');
-    div.className = 'level';
-    div.innerHTML = `<div><strong>${u.title}</strong><br><small>${u.topics.length} temas</small></div>
-      <div>${done ? '<span class="badge">Completado</span>' : ''} <button onclick="startUnit(${u.id})">${done ? 'Repetir' : 'Iniciar'}</button></div>`;
-    el.appendChild(div);
+    div.className = 'level' + (lvl.special ? ' special' : '');
+    div.innerHTML = `<div><strong>${lvl.title}</strong><br><small>${unlocked ? (done ? 'Completado' : 'Disponible') : 'Bloqueado'}</small></div>
+      <div>${done ? '<span class="badge">Hecho</span>' : ''} <button ${unlocked ? '' : 'disabled'} onclick="startLevel(${lvl.id})">${done ? 'Repetir' : 'Iniciar'}</button></div>`;
+    (lvl.special ? special : normal).appendChild(div);
   });
 }
 
@@ -225,9 +261,11 @@ function renderCatalog() {
   `).join('');
 }
 
-function startUnit(id) {
-  currentUnit = TEMARIO.find(u => u.id === id);
-  quizQuestions = [...(QUESTIONS[id] || [])].sort(() => Math.random() - 0.5);
+function startLevel(id) {
+  currentLevel = LEVELS.find(l => l.id === id);
+  const pool = ALL_QUESTIONS.filter(q => q.diff >= currentLevel.minDiff && q.diff <= currentLevel.maxDiff);
+  const selected = shuffle(pool).slice(0, Math.min(20, pool.length));
+  quizQuestions = selected.map(prepareQuestion);
   currentQ = 0;
   score = 0;
   showScreen('quiz');
@@ -236,11 +274,11 @@ function startUnit(id) {
 
 function showQuestion() {
   if (currentQ >= quizQuestions.length) {
-    finishUnit();
+    finishLevel();
     return;
   }
   const q = quizQuestions[currentQ];
-  document.getElementById('quiz-header').innerHTML = `<h2>${currentUnit.title}</h2><p>Pregunta ${currentQ + 1} de ${quizQuestions.length}</p>`;
+  document.getElementById('quiz-header').innerHTML = `<h2>${currentLevel.title}</h2><p>Pregunta ${currentQ + 1} de ${quizQuestions.length}</p>`;
   document.getElementById('quiz-progress').style.width = ((currentQ) / quizQuestions.length * 100) + '%';
   document.getElementById('quiz-content').innerHTML = `
     <div class="question">${q.q}</div>
@@ -265,12 +303,12 @@ function answer(idx) {
   }, 900);
 }
 
-function finishUnit() {
+function finishLevel() {
   const pct = Math.round((score / quizQuestions.length) * 100);
-  progress[currentUnit.id] = Math.max(progress[currentUnit.id] || 0, pct);
+  progress[currentLevel.id] = Math.max(progress[currentLevel.id] || 0, pct);
   localStorage.setItem('biogame_progress', JSON.stringify(progress));
   document.getElementById('quiz-content').innerHTML = `
-    <h2>¡Unidad completada!</h2>
+    <h2>¡Nivel completado!</h2>
     <p>Aciertos: ${score} / ${quizQuestions.length} (${pct}%)</p>
     <button onclick="showScreen('menu')">Volver al menú</button>
   `;
