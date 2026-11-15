@@ -32,6 +32,8 @@ main { max-width: 720px; margin: 1rem auto; padding: 0 1rem; }
 #screen-menu, #screen-quiz, #screen-catalog { display: none; }
 #screen-menu.active, #screen-quiz.active, #screen-catalog.active { display: block; }
 footer { text-align: center; padding: 1.5rem; font-size: 0.85rem; color: #555; }
+#qr-container { text-align: center; margin: 1rem 0; }
+#qr-container canvas, #qr-container img { max-width: 200px; height: auto; }
 </style>
 </head>
 <body>
@@ -83,6 +85,7 @@ footer { text-align: center; padding: 1.5rem; font-size: 0.85rem; color: #555; }
   Basado en el temario de Biología 1.
 </footer>
 
+<script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
 <script>
 const TEMARIO = [
   {
@@ -307,12 +310,29 @@ function finishLevel() {
   const pct = Math.round((score / quizQuestions.length) * 100);
   progress[currentLevel.id] = Math.max(progress[currentLevel.id] || 0, pct);
   localStorage.setItem('biogame_progress', JSON.stringify(progress));
+
+  const scoreText = `BioGame\nJugador: ${player || 'Estudiante'}\nNivel: ${currentLevel.title}\nPuntuación: ${score}/${quizQuestions.length} (${pct}%)`;
+
   document.getElementById('quiz-content').innerHTML = `
     <h2>¡Nivel completado!</h2>
     <p>Aciertos: ${score} / ${quizQuestions.length} (${pct}%)</p>
+    <div id="qr-container"></div>
+    <p style="font-size:0.9rem; color:#555;">Escanea el QR para ver tu puntuación</p>
     <button onclick="showScreen('menu')">Volver al menú</button>
   `;
   document.getElementById('quiz-progress').style.width = '100%';
+
+  // Generate QR
+  if (typeof QRCode !== 'undefined') {
+    const container = document.getElementById('qr-container');
+    QRCode.toCanvas(container, scoreText, { width: 200, margin: 2, color: { dark: '#2e7d32', light: '#ffffff' } }, function (error) {
+      if (error) {
+        container.innerHTML = '<p>No se pudo generar el QR</p>';
+      }
+    });
+  } else {
+    document.getElementById('qr-container').innerHTML = '<p>QR no disponible (sin conexión a la librería)</p>';
+  }
 }
 
 function resetProgress() {
